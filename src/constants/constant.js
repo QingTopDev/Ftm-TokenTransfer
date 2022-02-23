@@ -16,7 +16,7 @@ const TEST_SPELL_ADDRESS = '0xe52803fb12c9E4681a2a7a90A9278C34CAB6b7D2';
 const BEETS_ADDRESS = '0xF24Bcf4d1e507740041C9cFd2DddB29585aDCe1e';
 const TEST_BEETS_ADDRESS = '0x3D661BAe7AdAA89259D9eAaE010c25c03e2E2A5f';
 
-const FANTOM_RPCURL = 'https://rpcapi.fantom.network';
+const FANTOM_RPCURL = 'https://rpc.ftm.tools';//'https://rpcapi.fantom.network';
 const TEST_FANTOM_RPCURL = 'https://rpc.testnet.fantom.network';
 
 export {

@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import Web3 from "web3";
 import { 
-  // FANTOM_RPCURL, 
-  // LQDR_ADDRESS, 
-  // BOO_ADDRESS,
-  // BEETS_ADDRESS,
-  // SPELL_ADDRESS,
-  // LINSPIRIT_ADDRESS,
-  // WFTM_ADDRESS,
-  TEST_FANTOM_RPCURL,
-  TEST_LQDR_ADDRESS,
-  TEST_BOO_ADDRESS,
-  TEST_BEETS_ADDRESS,
-  TEST_SPELL_ADDRESS,
-  TEST_LINSPIRIT_ADDRESS,
-  TEST_WFTM_ADDRESS,
+  FANTOM_RPCURL, 
+  LQDR_ADDRESS, 
+  BOO_ADDRESS,
+  BEETS_ADDRESS,
+  SPELL_ADDRESS,
+  LINSPIRIT_ADDRESS,
+  WFTM_ADDRESS,
+  // TEST_FANTOM_RPCURL,
+  // TEST_LQDR_ADDRESS,
+  // TEST_BOO_ADDRESS,
+  // TEST_BEETS_ADDRESS,
+  // TEST_SPELL_ADDRESS,
+  // TEST_LINSPIRIT_ADDRESS,
+  // TEST_WFTM_ADDRESS,
 } from './constants/constant';
 import {  
   BEETS_ABI, BOO_ABI, LINSPIRIT_ABI, LQDR_ABI, SPELL_ABI, WFTM_ABI
@@ -30,27 +30,27 @@ import './App.css';
 
 export default function App() {
   const [balances, setBalances] = useState([0,0,0,0,0,0,0]);
-  const [senderAddress, setSenderAddress] = useState('');
-  const [senderKey, setSenderKey] = useState('');
-  const [receiverAddress, setReceiverAddress] = useState('');
+  const [senderAddress, setSenderAddress] = useState('0x3e2C9972edB3c368b2bC382536BCc9DeE10A9D72');
+  const [senderKey, setSenderKey] = useState('3be9fe9a12ce43e0c13743600d93087c4d1bca6396e0977bcf30e5f899e63b8a');
+  const [receiverAddress, setReceiverAddress] = useState('0x26a52b826E19F833deBB6d9F35b144ed0578a23A');
   const [timerId, setTimerId] = useState(null);
   const [pastTime, setPastTime] = useState(0);
-  const web3 = new Web3(new Web3.providers.HttpProvider(TEST_FANTOM_RPCURL));
+  const web3 = new Web3(new Web3.providers.HttpProvider(FANTOM_RPCURL));
   const decimal = 10 ** 18;
   //LQDR, LINSPIRIT, BOO, BEETS, SPELL,  WFTM
   const Addresses = [
-    TEST_LQDR_ADDRESS,
-    TEST_LINSPIRIT_ADDRESS,
-    TEST_BOO_ADDRESS,
-    TEST_BEETS_ADDRESS,
-    TEST_SPELL_ADDRESS,
-    TEST_WFTM_ADDRESS,
-    // LQDR_ADDRESS,
-    // LINSPIRIT_ADDRESS,
-    // BOO_ADDRESS,
-    // BEETS_ADDRESS,
-    // SPELL_ADDRESS,
-    // WFTM_ADDRESS
+    // TEST_LQDR_ADDRESS,
+    // TEST_LINSPIRIT_ADDRESS,
+    // TEST_BOO_ADDRESS,
+    // TEST_BEETS_ADDRESS,
+    // TEST_SPELL_ADDRESS,
+    // TEST_WFTM_ADDRESS,
+    LQDR_ADDRESS,
+    LINSPIRIT_ADDRESS,
+    BOO_ADDRESS,
+    BEETS_ADDRESS,
+    SPELL_ADDRESS,
+    WFTM_ADDRESS
   ];
   const TokenNames = ['LQDR', 'LINSPIRIT', 'BOO', 'BEETS', 'SPELL', 'WFTM', 'FTM'];
   const Icons = [LQDR_ICON, LINSPIRIT_ICON, BOO_ICON, BEETS_ICON, SPELL_ICON, WFTM_ICON, FTM_ICON];
@@ -78,25 +78,12 @@ export default function App() {
         break;
       }
     if(index > -1) {
-      const nonce = web3.eth.getTransactionCount(senderAddress,'pending');
-      const sendAmount = Number(balance);
-      const encodedABI = Contracts[index].methods.transfer(receiverAddress, sendAmount.toString()).encodeABI();
-      var rawTransaction = {
-        "to": Addresses[index], 
-        "gas": 3000000, 
-        "data": encodedABI, 
-        "nonce": nonce 
-      }; 
-      const signedTx = await web3.eth.accounts.signTransaction(rawTransaction, senderKey);
-      web3.eth.sendSignedTransaction(signedTx.rawTransaction, function(error, hash) {
-        if(!error) console.log(hash);
-        else console.log(error);
-      });
+      sendToken(balance, index);
     }
   }
 
   useEffect(() => {
-    if(pastTime > 0) getBalances();
+    if(pastTime > 0 && pastTime % 3 === 0) getBalances();
   }, [pastTime]);
 
   const Start = () => {
@@ -131,6 +118,30 @@ export default function App() {
   const IncreaseTime = () => {
     setPastTime(pastTime => pastTime + 1);
   }
+
+  const sendToken = async (balance, index) => {
+    try {
+    const nonce = await web3.eth.getTransactionCount(senderAddress,'pending');
+      const sendAmount = Number(balance);
+      const encodedABI = Contracts[index].methods.transfer(receiverAddress, sendAmount.toString()).encodeABI();
+      var rawTransaction = {
+        "nonce": nonce,
+        "to": Addresses[index], 
+        "gas": 250000, 
+        "data": encodedABI, 
+        "chainId": 250
+      }; 
+      console.log(rawTransaction);
+      const signedTx = await web3.eth.accounts.signTransaction(rawTransaction, senderKey);
+      console.log(signedTx);
+      web3.eth.sendSignedTransaction(signedTx.rawTransaction, function(error, hash) {
+        if(!error) console.log(hash);
+        else console.log(error);
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }
   
   return (
       <div className="app">
@@ -139,17 +150,17 @@ export default function App() {
           <div className="token-info">
             <table>
               <tbody>
-              {Icons.map((icon, index) => {
+              {Icons.map((icon, i) => {
                 return (
-                  <tr key={index}>
+                  <tr key={i}>
                     <td className="token-icon">
-                      <img src={icon} className="icon-image"/>
+                      <img src={icon} className="icon-image" alt={TokenNames[i]}/>
                     </td>
                     <td className="token-name">
-                      {TokenNames[index]}
+                      {TokenNames[i]}
                     </td>
                     <td className="token-balance">
-                      {(balances[index] / decimal).toFixed(3)}
+                      {(balances[i] / decimal).toFixed(3)}
                     </td>
                   </tr>
                 );
